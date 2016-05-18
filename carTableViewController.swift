@@ -6,92 +6,116 @@
 //
 //
 
-import UIKit
+import UIKit //Import UIKit
+import CoreData //Import CoreData
+
 
 class carTableViewController: UITableViewController {
+    
+    var loadedcar = [mycar]() //loaded car array as mycar class
 
     override func viewDidLoad() {
+        
         super.viewDidLoad()
+        
+        loadcars()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
+    
+    
+    
+    func loadcars() {
+        
+        
+        var userID = MyVariables.trackuser // user id as tracked user
+        
+        println(userID) // print for testing
+        
+        var appDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate) // app delegate
+        
+        var context:NSManagedObjectContext = appDel.managedObjectContext! // context of managedobject
+        
+        var request = NSFetchRequest(entityName: "Users") // request from NSFetchRequest on enity name Users
+        
+        request.returnsObjectsAsFaults = false // return objects as false set to false
+        
+        request.predicate = NSPredicate(format: "username = %@", userID) // predicate based on username entered
+        
+        var results:NSArray = context.executeFetchRequest(request, error: nil)! // results of NSARRAY and of contexted executed request
+        
+        println(results.count) // print results for testing
+        
+        if (results.count > 0) { // if results is greater than 0 a record does exist
+            //            for res in results{
+            //                println(res)
+            //            }
+            
+            var r = results[0] as! NSManagedObject //set R from array results and of NSMANAGED OBJECT
+            
+            println(r.valueForKey("username"))// print to log for testing
+            
+            
+            //load records
+            var loadednumberplate = r.valueForKey("numberplate") as! String
+            var loadedmake = r.valueForKey("make") as! String
+            var loadedmodel = r.valueForKey("model") as! String
+            
+            
+            //create objects as mycar class using the following values
+            let car1 = mycar(heading: "Number Plate", info: loadednumberplate)!
+            let car2 = mycar(heading: "Make", info: loadedmake)!
+            let car3 = mycar(heading: "Model", info: loadedmodel)!
+            
+            loadedcar += [car1,car2,car3] // save objects to array
+            
+            
+        }else{//else no records found
+            
+            println("Nothing returned") //print for testing
+            
+            
+        }
+        
+        println("Load") // print for testing
 
+        
+    } // end function loaded car
+    
+    
     override func didReceiveMemoryWarning() {
+        
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+
     }
 
-    // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Potentially incomplete method implementation.
-        // Return the number of sections.
-        return 0
+
+        return 1
+        
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete method implementation.
-        // Return the number of rows in the section.
-        return 0
+
+        return loadedcar.count // number of objects in loaded car array
+        
     }
 
-    /*
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath) as! UITableViewCell
-
-        // Configure the cell...
-
-        return cell
+        
+        let cellIdentifier = "carcell" //cell identifier as carcell
+        
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! settingsTableViewCell // create cell from custom cell class and cell identifier
+        
+        let car = loadedcar[indexPath.row] // car as loadedcar at indexpath.row
+        
+        cell.carlbl.text = car.heading // cell label as object car heading
+        
+        cell.cartb.text = car.info // cell text as object car info
+        
+        return cell // return cell
+        
     }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-}
+    
+}// end class

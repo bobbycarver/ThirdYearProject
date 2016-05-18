@@ -2,96 +2,110 @@
 //  reportsTableViewController.swift
 //  
 //
-//  Created by Bobby Carver on 29/03/2016.
+//  Created by Bobby Carver  on 29/03/2016.
 //
 //
 
 import UIKit
 
 class reportsTableViewController: UITableViewController {
+    
+     var listOfFiles = [] //empty array of listoffiles
+    
+     var selectedfile: String! // selected file as string
+    
 
     override func viewDidLoad() {
+        
         super.viewDidLoad()
+        
+        fetchFilesFromFolder() //run fetchfilesfromfolder function
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-    }
+            }
+    
+    
 
     override func didReceiveMemoryWarning() {
+        
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        
     }
-
-    // MARK: - Table view data source
+    
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Potentially incomplete method implementation.
-        // Return the number of sections.
-        return 0
+
+        return 1
+        
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete method implementation.
-        // Return the number of rows in the section.
-        return 0
-    }
 
-    /*
+        return listOfFiles.count // return number of items in list of files array
+        
+    }
+    
+    
+    func fetchFilesFromFolder() {
+        
+        var fileManager = NSFileManager.defaultManager() //filemanager as NSFileManager
+        
+        var folderPathURL = fileManager.URLsForDirectory(NSSearchPathDirectory.DocumentDirectory, inDomains: NSSearchPathDomainMask.UserDomainMask)[0] as! NSURL //path of documents
+        
+        var documentsContent = fileManager.contentsOfDirectoryAtPath(folderPathURL.path!, error: nil) //content of documents
+        
+        println(documentsContent) //print for testing
+        
+        //directory urls as contents of directoryatUrl using following properties
+        if var directoryURLs = fileManager.contentsOfDirectoryAtURL(folderPathURL, includingPropertiesForKeys: nil, options: NSDirectoryEnumerationOptions.SkipsHiddenFiles, error: nil) {
+            
+            println(directoryURLs) //print for testing
+            
+            //report files as directory and filter using path extension txt and last path component
+            var reportFiles = directoryURLs.map(){ $0.lastPathComponent }.filter(){ $0.pathExtension == "txt" }
+            
+           
+           
+            listOfFiles = reportFiles // add report files to list of files array
+            
+            println(reportFiles) //print for testing
+            
+        } // end contents of directory
+        
+    } // end function fetc files from folder
+
+    
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath) as! UITableViewCell
+        
 
-        // Configure the cell...
-
-        return cell
+        let cellIdentifier = "reportcell" // cell identifier as reportcell
+        
+        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! settingsTableViewCell //create cell as custom cell class using cell identifier
+        
+        
+         cell.textLabel?.text = listOfFiles[indexPath.row] as? String // cell text label as list of files index
+        
+        return cell // return cell
+        
     }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-}
+    
+    
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let indexPath = tableView.indexPathForSelectedRow() // index path as indexath for selected row
+        
+        //current cell as cellfor row at index path using custom cell class
+        let currentCell = tableView.cellForRowAtIndexPath(indexPath!) as! settingsTableViewCell
+        
+        selectedfile = currentCell.textLabel!.text! // selectedfile as current cell label text
+        
+        println(selectedfile!) // print for testing
+        
+        MyVariables.fileopen = selectedfile! // file open as selected file
+        
+        performSegueWithIdentifier("SeagueOpenFile", sender: nil) // perform seague to change view controller
+    
+        } // end of did select row function
+    
+    } // end class
